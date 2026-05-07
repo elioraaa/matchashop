@@ -4,6 +4,8 @@ import { MatchaModule } from './matcha/matcha.module';
 import { MatchaProductEntity } from './matcha/entities/matcha-product.entity';
 import { AuthModule } from './auth/auth.module';
 import { OrderModule } from './order/order.module';
+import { OrderEntity } from './order/entities/order.entity';
+import { OrderItemEntity } from './order/entities/orderItem.entity';
 
 @Module({
   imports: [
@@ -14,7 +16,7 @@ import { OrderModule } from './order/order.module';
       username: 'root',
       password: 'eliora123',
       database: 'matchashop',
-      entities: [MatchaProductEntity],
+      entities: [MatchaProductEntity, OrderEntity, OrderItemEntity],
       synchronize: true,
     }),
     MatchaModule,
@@ -24,4 +26,4 @@ import { OrderModule } from './order/order.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
