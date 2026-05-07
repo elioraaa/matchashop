@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MatchaModule } from './matcha/matcha.module';
 import { MatchaProductEntity } from './matcha/entities/matcha-product.entity';
 import { AuthModule } from './auth/auth.module';
-
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -13,13 +13,15 @@ import { AuthModule } from './auth/auth.module';
       port: 3306,
       username: 'root',
       password: 'eliora123',
-      database: 'food_delivery',
+      database: 'matchashop',
       entities: [MatchaProductEntity],
       synchronize: true,
     }),
     MatchaModule,
-    AuthModule,],
+    AuthModule,
+    OrderModule,
+  ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

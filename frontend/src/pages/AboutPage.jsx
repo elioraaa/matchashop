@@ -9,10 +9,6 @@ function AboutPage() {
       answer: 'Go to the admin page, fill out the form with product details, and submit. Your new product will appear in the shop immediately.',
     },
     {
-      question: 'Can I edit or delete products?',
-      answer: 'Yes! In the admin page, you can click on any existing product to edit its details or delete it from the menu.',
-    },
-    {
       question: 'Is this connected to a real backend?',
       answer: 'Yes, this frontend is designed to work with a backend API. You can set up your own backend or use a mock server for testing.',
     },
@@ -20,10 +16,7 @@ function AboutPage() {
       question: 'How do I place an order?',
       answer: 'Browse the shop, add items to your cart, and proceed to checkout. You can choose a pickup time and complete your order.',
     },
-    {
-      question: 'What is the admin login credentials?',
-      answer: 'The demo login credentials are: username "admin" and password "matcha123"',
-    },
+    
   ];
 
   const toggleFaq = (index) => {
