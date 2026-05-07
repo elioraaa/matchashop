@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import PromoMarquee from './components/layout/PromoMarquee';
 import Footer from './components/layout/Footer';
 import AdminLoginModal from './components/layout/AdminLoginModal';
 import { seedProducts } from './data/seedProducts';
-import AboutPage from './pages/AboutPage';
-import AdminPage from './pages/AdminPage';
-import CartPage from './pages/CartPage';
-import HomePage from './pages/HomePage';
-import MenuPage from './pages/MenuPage';
 import { getMatchaProducts } from './services/matchaApi';
 import './App.css';
 
 function App() {
-  const [activePage, setActivePage] = useState('home');
+  const navigate = useNavigate();
   const [products, setProducts] = useState(seedProducts);
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -35,7 +31,6 @@ function App() {
   };
 
   useEffect(() => {
-
     loadProducts();
   }, []);
 
@@ -77,20 +72,18 @@ function App() {
   const handleAdminLogin = (user) => {
     setIsAdmin(true);
     setShowAdminLogin(false);
-    setActivePage('admin');
+    navigate('/admin');
   };
 
   const handleLogout = () => {
     setIsAdmin(false);
-    setActivePage('home');
+    navigate('/');
   };
 
   return (
     <div className="app">
       <PromoMarquee />
       <Navbar
-        activePage={activePage}
-        setActivePage={setActivePage}
         cartCount={cartCount}
         isAdmin={isAdmin}
         onAdminClick={() => setShowAdminLogin(true)}
@@ -109,31 +102,22 @@ function App() {
         </div>
       ) : null}
 
-      {activePage === 'home' ? (
-        <HomePage products={products} setActivePage={setActivePage} addToCart={addToCart} />
-      ) : null}
-      {activePage === 'menu' ? (
-        <MenuPage
-          products={products}
-          addToCart={addToCart}
-          selectedProduct={selectedProduct}
-          setSelectedProduct={setSelectedProduct}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-      ) : null}
-      {activePage === 'about' ? <AboutPage /> : null}
-      {activePage === 'cart' ? (
-        <CartPage
-          cart={cart}
-          updateQuantity={updateQuantity}
-          removeFromCart={removeFromCart}
-          setActivePage={setActivePage}
-          clearCart={clearCart}
-        />
-      ) : null}
-      {activePage === 'admin' ? <AdminPage onProductsChanged={loadProducts} onLogout={handleLogout} /> : null}
-      <Footer activePage={activePage} setActivePage={setActivePage} onCategoryClick={setSelectedCategory} />
+      <Outlet context={{
+        products,
+        cart,
+        selectedProduct,
+        setSelectedProduct,
+        selectedCategory,
+        setSelectedCategory,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        loadProducts,
+        onLogout: handleLogout
+      }} />
+
+      <Footer onCategoryClick={setSelectedCategory} />
     </div>
   );
 }

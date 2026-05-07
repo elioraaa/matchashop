@@ -75,5 +75,4 @@ function AboutPage() {
     </main>
   );
 }
-
 export default AboutPage;

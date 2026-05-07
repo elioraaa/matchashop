@@ -1,10 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import './Footer.css';
 
-function Footer({ activePage, setActivePage, onCategoryClick }) {
+function Footer({ onCategoryClick }) {
+    const navigate = useNavigate();
     const currentYear = new Date().getFullYear();
 
     const handleShopClick = (category) => {
-        setActivePage('menu');
+        navigate('/menu');
         if (onCategoryClick) {
             onCategoryClick(category);
         }
@@ -32,17 +34,17 @@ function Footer({ activePage, setActivePage, onCategoryClick }) {
 
                     <div className="footer-column">
                         <h4>Company</h4>
-                        <button onClick={() => setActivePage('about')}>About Us</button>
-                        <button onClick={() => setActivePage('about')}>Our Story</button>
-                        <button onClick={() => setActivePage('about')}>Sustainability</button>
+                        <button onClick={() => navigate('/about')}>About Us</button>
+                        <button onClick={() => navigate('/about')}>Our Story</button>
+                        <button onClick={() => navigate('/about')}>Sustainability</button>
                     </div>
 
                     <div className="footer-column">
                         <h4>Support</h4>
-                        <button onClick={() => setActivePage('about')}>FAQ</button>
-                        <button onClick={() => setActivePage('about')}>Shipping</button>
-                        <button onClick={() => setActivePage('about')}>Returns</button>
-                        <button onClick={() => setActivePage('about')}>Contact</button>
+                        <button onClick={() => navigate('/about')}>FAQ</button>
+                        <button onClick={() => navigate('/about')}>Shipping</button>
+                        <button onClick={() => navigate('/about')}>Returns</button>
+                        <button onClick={() => navigate('/about')}>Contact</button>
                     </div>
                 </div>
 

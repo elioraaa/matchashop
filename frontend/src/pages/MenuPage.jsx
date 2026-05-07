@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard';
 import ProductDetailPanel from '../components/product/ProductDetailPanel';
 
-function MenuPage({ products, addToCart, selectedProduct, setSelectedProduct, selectedCategory, onCategoryChange }) {
+function MenuPage() {
+  const { products, addToCart, selectedProduct, setSelectedProduct, selectedCategory, setSelectedCategory } = useOutletContext();
   const [category, setCategory] = useState('All');
   const categories = useMemo(
     () => ['All', ...new Set(products.map((product) => product.category).filter(Boolean))],
@@ -26,10 +28,10 @@ function MenuPage({ products, addToCart, selectedProduct, setSelectedProduct, se
       setCategory('All');
     }
     // Reset the selected category after applying
-    if (onCategoryChange) {
-      onCategoryChange(null);
+    if (setSelectedCategory) {
+      setSelectedCategory(null);
     }
-  }, [selectedCategory, categories, onCategoryChange]);
+  }, [selectedCategory, categories, setSelectedCategory]);
 
   const filteredProducts = category === 'All'
     ? products

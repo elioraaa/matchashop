@@ -1,9 +1,22 @@
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const pages = ['home', 'menu', 'about', 'cart'];
 
-function Navbar({ activePage, setActivePage, cartCount, isAdmin, onAdminClick }) {
+function Navbar({ cartCount, isAdmin, onAdminClick }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getCurrentPage = () => {
+    const path = location.pathname;
+    if (path === '/') return 'home';
+    return path.slice(1);
+  };
+
+  const activePage = getCurrentPage();
+
   const handleAdminClick = () => {
     if (isAdmin) {
-      setActivePage('admin');
+      navigate('/admin');
     } else {
       onAdminClick();
     }
@@ -11,7 +24,7 @@ function Navbar({ activePage, setActivePage, cartCount, isAdmin, onAdminClick })
 
   return (
     <header className="site-header">
-      <button className="brand" onClick={() => setActivePage('home')}>
+      <button className="brand" onClick={() => navigate('/')}>
         <span className="brand-mark">b</span>
         <span>MATCHA MUSE</span>
       </button>
@@ -21,7 +34,7 @@ function Navbar({ activePage, setActivePage, cartCount, isAdmin, onAdminClick })
           <button
             key={page}
             className={activePage === page ? 'nav-link active' : 'nav-link'}
-            onClick={() => setActivePage(page)}
+            onClick={() => navigate(page === 'home' ? '/' : `/${page}`)}
           >
             {page === 'menu' ? 'Shop' : page}
             {page === 'cart' && cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}

@@ -1,6 +1,9 @@
+import { useOutletContext } from 'react-router-dom';
 import MatchaDashboard from '../Admin/Matcha';
 
-function AdminPage({ onProductsChanged, onLogout }) {
+function AdminPage() {
+  const { loadProducts, onLogout } = useOutletContext();
+
   return (
     <main className="page-shell">
       <div className="admin-header">
@@ -13,7 +16,7 @@ function AdminPage({ onProductsChanged, onLogout }) {
           Logout
         </button>
       </div>
-      <MatchaDashboard onProductsChanged={onProductsChanged} />
+      <MatchaDashboard onProductsChanged={loadProducts} />
     </main>
   );
 }
