@@ -14,9 +14,9 @@ import {
   UpdateMatchaProductDTO,
 } from './dto/matcha-product.dto';
 
-@Controller(['food', 'matcha-products'])
+@Controller('matcha-products')
 export class MatchaController {
-  constructor(private readonly matchaService: MatchaService) {}
+  constructor(private readonly matchaService: MatchaService) { }
 
   @Get()
   public async getAll() {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { formatPrice } from '../../../utils/formatPrice';
+import { createOrderService } from '../../../services/order';
 import './CheckoutModal.css';
 
 function CheckoutModal({ cart, total, onClose, onComplete }) {
@@ -8,9 +9,10 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
         email: '',
         phone: '',
         pickupDate: '',
-        pickupTime: ''
+        pickupTime: '',
     });
     const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
 
@@ -47,10 +49,9 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        // Clear error when user starts typing
+        setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+            setErrors((prev) => ({ ...prev, [name]: '' }));
         }
     };
 
@@ -60,23 +61,33 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
         if (!validateForm()) return;
 
         setIsSubmitting(true);
+        setApiError('');
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            await createOrderService({
+                customerName: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                pickupDate: formData.pickupDate,
+                pickupTime: formData.pickupTime,
+                items: cart.map((item) => ({
+                    productId: item.id,
+                    quantity: item.quantity,
+                    price: Number(item.price),
+                })),
+            });
 
-        setOrderComplete(true);
-        setIsSubmitting(false);
-
-        // Clear cart after successful order
-        setTimeout(() => {
-            onComplete();
-        }, 2000);
+            setOrderComplete(true);
+        } catch (error) {
+            setApiError('Unable to submit your order. Please try again.');
+            setIsSubmitting(false);
+        }
     };
 
     if (orderComplete) {
         return (
-            <div className="modal-overlay" onClick={onClose}>
-                <div className="modal-content checkout-modal success-modal" onClick={e => e.stopPropagation()}>
+            <div className="app-modal-overlay" onClick={onClose}>
+                <div className="app-modal-content checkout-modal success-modal" onClick={e => e.stopPropagation()}>
                     <div className="success-content">
                         <div className="success-icon">✓</div>
                         <h2>Order Confirmed!</h2>
@@ -98,9 +109,9 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
     const today = new Date().toISOString().split('T')[0];
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content checkout-modal" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>&times;</button>
+        <div className="app-modal-overlay" onClick={onClose}>
+            <div className="app-modal-content checkout-modal" onClick={e => e.stopPropagation()}>
+                <button type="button" className="modal-close" onClick={onClose} aria-label="Close checkout">&times;</button>
 
                 <div className="checkout-header">
                     <h2>Checkout</h2>
@@ -124,7 +135,7 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="checkout-form">
-                    <div className="form-group">
+                    <div className="checkout-form-group">
                         <label htmlFor="name">Full Name</label>
                         <input
                             type="text"
@@ -138,7 +149,7 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                         {errors.name && <span className="error-text">{errors.name}</span>}
                     </div>
 
-                    <div className="form-group">
+                    <div className="checkout-form-group">
                         <label htmlFor="email">Email</label>
                         <input
                             type="email"
@@ -152,7 +163,7 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                         {errors.email && <span className="error-text">{errors.email}</span>}
                     </div>
 
-                    <div className="form-group">
+                    <div className="checkout-form-group">
                         <label htmlFor="phone">Phone Number</label>
                         <input
                             type="tel"
@@ -167,7 +178,7 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                     </div>
 
                     <div className="form-row">
-                        <div className="form-group">
+                        <div className="checkout-form-group">
                             <label htmlFor="pickupDate">Pickup Date</label>
                             <input
                                 type="date"
@@ -181,7 +192,7 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                             {errors.pickupDate && <span className="error-text">{errors.pickupDate}</span>}
                         </div>
 
-                        <div className="form-group">
+                        <div className="checkout-form-group">
                             <label htmlFor="pickupTime">Pickup Time</label>
                             <select
                                 id="pickupTime"
@@ -204,7 +215,8 @@ function CheckoutModal({ cart, total, onClose, onComplete }) {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-primary full-width" disabled={isSubmitting}>
+                    {apiError ? <div className="error-text checkout-error">{apiError}</div> : null}
+                    <button type="submit" className="checkout-submit-button full-width" disabled={isSubmitting}>
                         {isSubmitting ? 'Processing...' : `Complete Order - ${formatPrice(total)}`}
                     </button>
                 </form>

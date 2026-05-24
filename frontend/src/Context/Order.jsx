@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { createOrder } from '../services/order';
-
-const OrdersContext = createContext();
+import { useState } from 'react';
+import { createOrderService } from '../services/order';
+import { OrdersContext } from './orderContext';
 
 const OrdersProvider = ({ children }) => {
 
@@ -9,20 +8,20 @@ const OrdersProvider = ({ children }) => {
 
     const createOrder = async (product) => {
         try {
-            const newOrder = await createOrder(product);
+            const newOrder = await createOrderService(product);
             setOrders([...orders, newOrder]);
         } catch (error) {
             console.error('Error creating order:', error);
             throw error;
         }
     };
-    const value = { orders, createOrder };
+
+    const values = { orders, createOrder };
     return (
-        <OrdersProvider.Provider value={value}>
+        <OrdersContext.Provider value={values}>
             {children}
-        </OrdersProvider.Provider>
+        </OrdersContext.Provider>
     )
 };
 
-const useOrderContext = () => useContext(OrdersContext);
-export { useOrderContext, OrdersProvider };
+export { OrdersProvider };

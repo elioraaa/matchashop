@@ -13,12 +13,12 @@ export class MatchaService {
   constructor(
     @InjectRepository(MatchaProductEntity)
     private readonly matchaProductRepository: Repository<MatchaProductEntity>,
-  ) {}
+  ) { }
 
   public async getAll() {
     try {
       return await this.matchaProductRepository.find();
-    } catch {
+    } catch (error) {
       throw new ErrorHandler(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -41,7 +41,7 @@ export class MatchaService {
   public async createMatchaProduct(data: CreateMatchaProductDTO) {
     try {
       return await this.matchaProductRepository.save(data);
-    } catch {
+    } catch (error) {
       throw new ErrorHandler(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -55,7 +55,7 @@ export class MatchaService {
 
     try {
       return await this.matchaProductRepository.save(updatedProduct);
-    } catch {
+    } catch (error) {
       throw new ErrorHandler(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -65,11 +65,11 @@ export class MatchaService {
 
   public async deleteMatchaProduct(id: number) {
     const product = await this.getOne(id);
-
     try {
       await this.matchaProductRepository.remove(product);
       return { message: 'Matcha product deleted successfully' };
-    } catch {
+    } catch (error) {
+     
       throw new ErrorHandler(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -20,7 +20,7 @@ export class CreateMatchaProductDTO {
   price!: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   image!: string;
 
   @IsString()

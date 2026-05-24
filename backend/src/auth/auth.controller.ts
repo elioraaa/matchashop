@@ -1,9 +1,10 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthCredentialsDTO } from './dto/auth-credentials.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   public register() {
@@ -11,7 +12,7 @@ export class AuthController {
   }
 
   @Post('login')
-  public login() {
-    return this.authService.login();
+  public login(@Body() credentials: AuthCredentialsDTO) {
+    return this.authService.login(credentials);
   }
 }

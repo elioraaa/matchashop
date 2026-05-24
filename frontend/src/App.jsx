@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import PromoMarquee from './components/layout/PromoMarquee';
 import Footer from './components/layout/Footer';
@@ -15,10 +15,10 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [apiStatus, setApiStatus] = useState('loading');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const data = await getMatchaProducts();
       const activeProducts = data.filter((product) => product.is_active !== false);
@@ -28,10 +28,33 @@ function App() {
       setProducts(seedProducts);
       setApiStatus('offline');
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadProducts();
+    let isMounted = true;
+
+    getMatchaProducts()
+      .then((data) => {
+        if (!isMounted) {
+          return;
+        }
+
+        const activeProducts = data.filter((product) => product.is_active !== false);
+        setProducts(activeProducts.length > 0 ? activeProducts : seedProducts);
+        setApiStatus('connected');
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(seedProducts);
+        setApiStatus('offline');
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -69,7 +92,7 @@ function App() {
     setCart([]);
   };
 
-  const handleAdminLogin = (user) => {
+  const handleAdminLogin = () => {
     setIsAdmin(true);
     setShowAdminLogin(false);
     navigate('/admin');
@@ -80,14 +103,33 @@ function App() {
     navigate('/');
   };
 
+  useEffect(() => {
+    localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+  }, [isAdmin]);
+
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const shouldShowFooter = !isAdminRoute;
+
   return (
     <div className="app">
-      <PromoMarquee />
-      <Navbar
-        cartCount={cartCount}
-        isAdmin={isAdmin}
-        onAdminClick={() => setShowAdminLogin(true)}
-      />
+      {!isAdminRoute ? (
+        <>
+          <PromoMarquee />
+          <Navbar
+            cartCount={cartCount}
+            isAdmin={isAdmin}
+            onAdminClick={() => setShowAdminLogin(true)}
+            onLogout={handleLogout}
+          />
+        </>
+      ) : (
+        <div className="admin-topbar">
+          <button type="button" className="primary-button admin-logout-button" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
+      )}
 
       {showAdminLogin && (
         <AdminLoginModal
@@ -114,10 +156,11 @@ function App() {
         removeFromCart,
         clearCart,
         loadProducts,
-        onLogout: handleLogout
+        onLogout: handleLogout,
+        isAdmin
       }} />
 
-      <Footer onCategoryClick={setSelectedCategory} />
+      {shouldShowFooter && <Footer onCategoryClick={setSelectedCategory} />}
     </div>
   );
 }
