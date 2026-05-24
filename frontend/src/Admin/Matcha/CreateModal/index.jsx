@@ -32,7 +32,7 @@ function CreateModal({
     }));
   };
 
-  const handleSubmit = async (event) => {
+const handleSubmit = async (event) => {
     event.preventDefault();
 
     const payload = {
@@ -70,7 +70,7 @@ function CreateModal({
               value={formProduct.name}
               onChange={handleChange}
               type="text"
-              placeholder="Strawberry Cloud Matcha"
+              placeholder="e.g., Strawberry Cloud Matcha"
               required
               autoFocus
             />

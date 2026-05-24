@@ -9,4 +9,4 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [MatchaController],
   providers: [MatchaService],
 })
-export class MatchaModule { }
+export class MatchaModule {}

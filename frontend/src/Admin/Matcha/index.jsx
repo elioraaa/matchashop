@@ -15,7 +15,7 @@ const emptyForm = {
   is_active: true,
 };
 
-function MatchaDashboard({ onProductsChanged }) {
+function MatchaDashboard({ onProductsChanged, showSummary = true }) {
   const [products, setProducts] = useState([]);
   const [formProduct, setFormProduct] = useState(emptyForm);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -85,6 +85,10 @@ function MatchaDashboard({ onProductsChanged }) {
     }
   };
 
+  const activeCount = products.filter((product) => product.is_active !== false).length;
+  const hiddenCount = products.length - activeCount;
+  const categories = [...new Set(products.map((product) => product.category || 'Signature Matcha'))];
+
   return (
     <section className="admin-panel">
       <div className="admin-toolbar">
@@ -96,6 +100,27 @@ function MatchaDashboard({ onProductsChanged }) {
           New Product
         </button>
       </div>
+
+      {typeof showSummary === 'undefined' || showSummary ? (
+        <div className="dashboard-cards">
+          <div className="dashboard-card">
+            <p>Total products</p>
+            <strong>{loading ? '...' : products.length}</strong>
+          </div>
+          <div className="dashboard-card">
+            <p>Visible items</p>
+            <strong>{loading ? '...' : activeCount}</strong>
+          </div>
+          <div className="dashboard-card">
+            <p>Hidden items</p>
+            <strong>{loading ? '...' : hiddenCount}</strong>
+          </div>
+          <div className="dashboard-card">
+            <p>Categories</p>
+            <strong>{loading ? '...' : categories.length}</strong>
+          </div>
+        </div>
+      ) : null}
 
       {message ? <div className="admin-message">{message}</div> : null}
 

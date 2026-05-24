@@ -17,7 +17,6 @@ function ComparisonSection() {
   return (
     <section className="comparison-section">
       <div>
-        <p className="eyebrow">matcha vs. coffee</p>
         <h2>MATCHA VS. COFFEE</h2>
       </div>
       <div className="stat-grid">

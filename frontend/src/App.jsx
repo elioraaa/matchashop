@@ -1,28 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import PromoMarquee from './components/layout/PromoMarquee';
 import Footer from './components/layout/Footer';
 import AdminLoginModal from './components/layout/AdminLoginModal';
 import { seedProducts } from './data/seedProducts';
-import AboutPage from './pages/AboutPage';
-import AdminPage from './pages/AdminPage';
-import CartPage from './pages/CartPage';
-import HomePage from './pages/HomePage';
-import MenuPage from './pages/MenuPage';
 import { getMatchaProducts } from './services/matchaApi';
 import './App.css';
 
 function App() {
-  const [activePage, setActivePage] = useState('home');
+  const navigate = useNavigate();
   const [products, setProducts] = useState(seedProducts);
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [apiStatus, setApiStatus] = useState('loading');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const data = await getMatchaProducts();
       const activeProducts = data.filter((product) => product.is_active !== false);
@@ -32,11 +28,33 @@ function App() {
       setProducts(seedProducts);
       setApiStatus('offline');
     }
-  };
+  }, []);
 
   useEffect(() => {
+    let isMounted = true;
 
-    loadProducts();
+    getMatchaProducts()
+      .then((data) => {
+        if (!isMounted) {
+          return;
+        }
+
+        const activeProducts = data.filter((product) => product.is_active !== false);
+        setProducts(activeProducts.length > 0 ? activeProducts : seedProducts);
+        setApiStatus('connected');
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(seedProducts);
+        setApiStatus('offline');
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -74,27 +92,44 @@ function App() {
     setCart([]);
   };
 
-  const handleAdminLogin = (user) => {
+  const handleAdminLogin = () => {
     setIsAdmin(true);
     setShowAdminLogin(false);
-    setActivePage('admin');
+    navigate('/admin');
   };
 
   const handleLogout = () => {
     setIsAdmin(false);
-    setActivePage('home');
+    navigate('/');
   };
+
+  useEffect(() => {
+    localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+  }, [isAdmin]);
+
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const shouldShowFooter = !isAdminRoute;
 
   return (
     <div className="app">
-      <PromoMarquee />
-      <Navbar
-        activePage={activePage}
-        setActivePage={setActivePage}
-        cartCount={cartCount}
-        isAdmin={isAdmin}
-        onAdminClick={() => setShowAdminLogin(true)}
-      />
+      {!isAdminRoute ? (
+        <>
+          <PromoMarquee />
+          <Navbar
+            cartCount={cartCount}
+            isAdmin={isAdmin}
+            onAdminClick={() => setShowAdminLogin(true)}
+            onLogout={handleLogout}
+          />
+        </>
+      ) : (
+        <div className="admin-topbar">
+          <button type="button" className="primary-button admin-logout-button" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
+      )}
 
       {showAdminLogin && (
         <AdminLoginModal
@@ -109,31 +144,23 @@ function App() {
         </div>
       ) : null}
 
-      {activePage === 'home' ? (
-        <HomePage products={products} setActivePage={setActivePage} addToCart={addToCart} />
-      ) : null}
-      {activePage === 'menu' ? (
-        <MenuPage
-          products={products}
-          addToCart={addToCart}
-          selectedProduct={selectedProduct}
-          setSelectedProduct={setSelectedProduct}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-      ) : null}
-      {activePage === 'about' ? <AboutPage /> : null}
-      {activePage === 'cart' ? (
-        <CartPage
-          cart={cart}
-          updateQuantity={updateQuantity}
-          removeFromCart={removeFromCart}
-          setActivePage={setActivePage}
-          clearCart={clearCart}
-        />
-      ) : null}
-      {activePage === 'admin' ? <AdminPage onProductsChanged={loadProducts} onLogout={handleLogout} /> : null}
-      <Footer activePage={activePage} setActivePage={setActivePage} onCategoryClick={setSelectedCategory} />
+      <Outlet context={{
+        products,
+        cart,
+        selectedProduct,
+        setSelectedProduct,
+        selectedCategory,
+        setSelectedCategory,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        loadProducts,
+        onLogout: handleLogout,
+        isAdmin
+      }} />
+
+      {shouldShowFooter && <Footer onCategoryClick={setSelectedCategory} />}
     </div>
   );
 }

@@ -8,7 +8,7 @@ export const getMatchaProducts = async () => {
 };
 
 export const createMatchaProduct = async (product) => {
-  const response = await axios.post(API_URL, product);
+  const response = await axios.post(`${API_URL}`, product);
   return response.data;
 };
 

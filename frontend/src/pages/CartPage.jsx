@@ -1,16 +1,19 @@
 import { useState } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import ProductVisual from '../components/product/ProductVisual';
 import CheckoutModal from '../components/layout/CheckoutModal';
 import { formatPrice } from '../utils/formatPrice';
 
-function CartPage({ cart, updateQuantity, removeFromCart, setActivePage, clearCart }) {
+function CartPage() {
+  const navigate = useNavigate();
+  const { cart, updateQuantity, removeFromCart, clearCart } = useOutletContext();
   const [showCheckout, setShowCheckout] = useState(false);
   const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
 
   const handleCheckoutComplete = () => {
     clearCart();
     setShowCheckout(false);
-    setActivePage('home');
+    navigate('/');
   };
 
   return (
@@ -24,7 +27,7 @@ function CartPage({ cart, updateQuantity, removeFromCart, setActivePage, clearCa
         <section className="empty-state">
           <h2>Your cart is peacefully empty.</h2>
           <p>Add a drink or product from the shop and it will appear here.</p>
-          <button className="primary-button" onClick={() => setActivePage('menu')}>Go to Shop</button>
+          <button className="primary-button" onClick={() => navigate('/menu')}>Go to Shop</button>
         </section>
       ) : (
         <section className="cart-layout">

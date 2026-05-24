@@ -1,4 +1,8 @@
-function HeroSection({ setActivePage }) {
+import { useNavigate } from 'react-router-dom';
+
+function HeroSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="hero-section bloom-hero">
       <div className="hero-copy">
@@ -9,10 +13,10 @@ function HeroSection({ setActivePage }) {
           energy, soft focus, and a little green ceremony in the middle of real life.
         </p>
         <div className="hero-actions">
-          <button className="primary-button" onClick={() => setActivePage('menu')}>
+          <button className="primary-button" onClick={() => navigate('/menu')}>
             Shop Now
           </button>
-          <button className="ghost-button" onClick={() => setActivePage('about')}>
+          <button className="ghost-button" onClick={() => navigate('/about')}>
             About Us
           </button>
         </div>

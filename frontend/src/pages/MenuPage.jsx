@@ -1,35 +1,29 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard';
 import ProductDetailPanel from '../components/product/ProductDetailPanel';
 
-function MenuPage({ products, addToCart, selectedProduct, setSelectedProduct, selectedCategory, onCategoryChange }) {
-  const [category, setCategory] = useState('All');
+function MenuPage() {
+  const { products, addToCart, selectedProduct, setSelectedProduct, selectedCategory, setSelectedCategory } = useOutletContext();
   const categories = useMemo(
     () => ['All', ...new Set(products.map((product) => product.category).filter(Boolean))],
     [products],
   );
 
-  // Sync external category selection to local state
-  useEffect(() => {
+  const category = useMemo(() => {
     if (selectedCategory) {
-      // Map footer categories to product categories
       const categoryMap = {
         'ceremonial': 'Ceremonial',
         'culinary': 'Culinary',
         'accessories': 'Accessories'
       };
       const mappedCategory = categoryMap[selectedCategory] || selectedCategory;
-      if (categories.includes(mappedCategory)) {
-        setCategory(mappedCategory);
-      }
-    } else if (selectedCategory === null) {
-      setCategory('All');
+
+      return categories.includes(mappedCategory) ? mappedCategory : 'All';
     }
-    // Reset the selected category after applying
-    if (onCategoryChange) {
-      onCategoryChange(null);
-    }
-  }, [selectedCategory, categories, onCategoryChange]);
+
+    return 'All';
+  }, [selectedCategory, categories]);
 
   const filteredProducts = category === 'All'
     ? products
@@ -48,7 +42,7 @@ function MenuPage({ products, addToCart, selectedProduct, setSelectedProduct, se
           <button
             key={item}
             className={category === item ? 'category-chip active' : 'category-chip'}
-            onClick={() => setCategory(item)}
+            onClick={() => setSelectedCategory(item === 'All' ? null : item)}
           >
             {item}
           </button>
